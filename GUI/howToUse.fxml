@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="307.0" prefWidth="439.0" style="-fx-background-color: rgb(24,24,24);" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Label alignment="TOP_LEFT" layoutY="46.0" prefHeight="111.0" prefWidth="439.0" text="You can hover over the texts and it tells you what its field requires, this macro executes when you press the macro key and changes back to sword whenever you release it (While back to sword option is checked)." textFill="WHITE" wrapText="true">
+         <font>
+            <Font name="Courier New Bold" size="15.0" />
+         </font>
+         <padding>
+            <Insets left="10.0" right="10.0" />
+         </padding>
+      </Label>
+      <Label alignment="TOP_LEFT" layoutY="14.0" prefHeight="23.0" prefWidth="146.0" text="How to use:" textFill="WHITE" wrapText="true">
+         <font>
+            <Font name="Courier New Bold" size="18.0" />
+         </font>
+         <padding>
+            <Insets left="10.0" right="10.0" />
+         </padding>
+      </Label>
+      <Label alignment="TOP_LEFT" layoutY="157.0" prefHeight="23.0" prefWidth="146.0" text="Contact me:" textFill="WHITE" wrapText="true">
+         <font>
+            <Font name="Courier New Bold" size="18.0" />
+         </font>
+         <padding>
+            <Insets left="10.0" right="10.0" />
+         </padding>
+      </Label>
+      <Label alignment="TOP_LEFT" layoutY="187.0" prefHeight="99.0" prefWidth="439.0" text="incase of any bugs or issues or any improvment ideas you might have, please contact through this email: imlrand12@gmail.com" textFill="WHITE" wrapText="true">
+         <font>
+            <Font name="Courier New Bold" size="15.0" />
+         </font>
+         <padding>
+            <Insets left="10.0" right="10.0" />
+         </padding>
+      </Label>
+   </children>
+</AnchorPane>

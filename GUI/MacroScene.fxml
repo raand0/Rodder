@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="307.0" prefWidth="439.0" style="-fx-background-color: rgb(24,24,24);" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="src.Mcontroller">
+   <children>
+      <CheckBox fx:id="backToSword" layoutX="136.0" layoutY="224.0" mnemonicParsing="false">
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor></CheckBox>
+      <Label fx:id="changeToSword" layoutX="166.0" layoutY="224.0" prefHeight="19.0" prefWidth="124.0" text="Back to sword" textFill="WHITE">
+         <font>
+            <Font name="Courier New Bold" size="15.0" />
+         </font>
+      </Label>
+      <ComboBox fx:id="swordKey" layoutX="98.0" layoutY="63.0" prefHeight="27.0" prefWidth="93.0" promptText="None">
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor></ComboBox>
+      <Label fx:id="swordLabel" layoutX="24.0" layoutY="67.0" text="Sword" textFill="WHITE">
+         <font>
+            <Font name="Courier New Bold" size="15.0" />
+         </font>
+      </Label>
+      <ComboBox fx:id="rodKey" layoutX="331.0" layoutY="63.0" prefHeight="27.0" prefWidth="93.0" promptText="None">
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor></ComboBox>
+      <Label fx:id="rodLabel" layoutX="263.0" layoutY="67.0" text="Rod" textFill="WHITE">
+         <font>
+            <Font name="Courier New Bold" size="15.0" />
+         </font>
+      </Label>
+      <Label fx:id="macLabel" layoutX="24.0" layoutY="153.0" text="Macro" textFill="WHITE">
+         <font>
+            <Font name="Courier New Bold" size="15.0" />
+         </font>
+      </Label>
+      <ComboBox fx:id="macKey" layoutX="98.0" layoutY="149.0" prefHeight="27.0" prefWidth="93.0" promptText="None">
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor></ComboBox>
+      <Label fx:id="toggleLabel" layoutX="263.0" layoutY="153.0" text="Toggle" textFill="WHITE">
+         <font>
+            <Font name="Courier New Bold" size="15.0" />
+         </font>
+      </Label>
+      <ComboBox fx:id="togKey" layoutX="331.0" layoutY="149.0" prefHeight="27.0" prefWidth="93.0" promptText="None">
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor></ComboBox>
+   </children>
+</AnchorPane>
