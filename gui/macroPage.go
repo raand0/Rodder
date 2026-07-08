@@ -2,6 +2,8 @@ package gui
 
 import (
 	"MacroGo/config"
+	"MacroGo/core"
+	"MacroGo/shared"
 	"image/color"
 
 	"fyne.io/fyne/v2"
@@ -9,40 +11,61 @@ import (
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
-	hook "github.com/robotn/gohook"
 
 	"fyne.io/fyne/v2/widget"
 )
 
-var isListening bool
+var MacroKey string
+var ToggleKey string
 
 func InitializeMacro() {
 	myApp := app.New()
 	myWindow := myApp.NewWindow("Rodder")
 
 	//testing labels
-	t_s := widget.NewLabel("swordkey is " + config.Keys.SwordKey)
-	t_r := widget.NewLabel("rodkey is " + config.Keys.RodKey)
-	t_m := widget.NewLabel("macrokey is " + config.Keys.MacroKey)
-	t_t := widget.NewLabel("togglekey is " + config.Keys.ToggleKey)
+	t_s := widget.NewLabel("swordkey is " + core.SwordKey)
+	t_r := widget.NewLabel("rodkey is " + core.RodKey)
+	t_m := widget.NewLabel("macrokey is " + MacroKey)
+	t_t := widget.NewLabel("togglekey is " + ToggleKey)
 
 	//row padding
 	rowGap := canvas.NewRectangle(color.Transparent)
 	rowGap.SetMinSize(fyne.NewSize(0, 15))
 
 	//first row
-	swordContainer := container.New(layout.NewHBoxLayout(), createPair(myApp, "Sword", &config.Keys.SwordKey, t_s))
-	rodContainer := container.New(layout.NewHBoxLayout(), createPair(myApp, "Rod", &config.Keys.RodKey, t_r))
+	swordContainer := container.New(layout.NewHBoxLayout(), createPair(myApp, "Sword", &core.SwordKey, t_s))
+	rodContainer := container.New(layout.NewHBoxLayout(), createPair(myApp, "Rod", &core.RodKey, t_r))
 	firstRow := container.New(layout.NewHBoxLayout(), swordContainer, layout.NewSpacer(), rodContainer)
 
 	//second row
-	macroContainer := container.New(layout.NewHBoxLayout(), createPair(myApp, "Macro", &config.Keys.MacroKey, t_m))
-	toggleContainer := container.New(layout.NewHBoxLayout(), createPair(myApp, "Toggle", &config.Keys.ToggleKey, t_t))
+	macroSelect := widget.NewSelect(selectOptions(), func(option string) {
+		MacroKey = option
+		t_m.SetText("macrokey is " + MacroKey)
+		for key, value := range config.SpecialKeys {
+			if value == MacroKey {
+				core.MacroCode = key
+				break
+			}
+		}
+	})
+	toggleSelect := widget.NewSelect(selectOptions(), func(option string) {
+		ToggleKey = option
+		t_m.SetText("togglekey is " + ToggleKey)
+		for key, value := range config.SpecialKeys {
+			if value == ToggleKey {
+				core.ToggleCode = key
+				break
+			}
+		}
+	})
+
+	macroContainer := container.New(layout.NewHBoxLayout(), widget.NewLabel("Macro"), layout.NewSpacer(), macroSelect)
+	toggleContainer := container.New(layout.NewHBoxLayout(), widget.NewLabel("Toggle"), toggleSelect)
 	secondRow := container.New(layout.NewHBoxLayout(), macroContainer, layout.NewSpacer(), toggleContainer)
 
 	//checkbox
 	swordCheck := widget.NewCheck("Back to sword", func(checked bool) {
-		config.Keys.BackToSword = checked
+		core.BackToSword = checked
 	})
 	thirdRow := container.New(layout.NewCenterLayout(), swordCheck)
 
@@ -50,9 +73,27 @@ func InitializeMacro() {
 	macroPage := container.New(layout.NewVBoxLayout(), firstRow, rowGap, secondRow, rowGap, thirdRow)
 	padded := container.NewPadded(macroPage)
 
-	//footer
-	footer := container.NewPadded(container.NewHBox(widget.NewLabel("rand"), layout.NewSpacer(), widget.NewLabel("version 1")))
+	//header
+	head := canvas.NewText("Rodder", color.RGBA{R: 25, G: 118, B: 210, A: 255})
+	head.TextSize = 20
+	head.TextStyle = fyne.TextStyle{Bold: true}
+	header := container.NewPadded(container.NewHBox(head, layout.NewSpacer()))
 
+	//switch button
+	TglBtn := widget.NewButton("OFF", shared.SwitchHandler)
+	TglBtn.Importance = widget.DangerImportance
+	shared.SharedBtn = TglBtn
+
+	//footer
+	creator := canvas.NewText("rand", color.RGBA{R: 25, G: 118, B: 210, A: 255})
+	creator.TextSize = 12
+	version := canvas.NewText("version 1.0", color.RGBA{R: 25, G: 118, B: 210, A: 255})
+	version.TextSize = 12
+
+	footer := container.NewHBox(creator, layout.NewSpacer(), version)
+	footerWithButton := container.NewPadded(container.NewVBox(container.NewCenter(TglBtn), footer))
+
+	//other page
 	c := container.New(layout.NewHBoxLayout(), t_s, t_r, t_m, t_t)
 
 	tabs := container.NewAppTabs(
@@ -62,35 +103,16 @@ func InitializeMacro() {
 
 	tabs.SetTabLocation(container.TabLocationLeading)
 
-	final := container.New(layout.NewBorderLayout(nil, footer, nil, nil), footer, tabs)
+	final := container.New(layout.NewBorderLayout(header, footerWithButton, nil, nil), header, footerWithButton, tabs)
 
+	go core.Macro()
 	myWindow.SetContent(final)
 	myWindow.Resize(fyne.NewSize(400, 400))
 	myWindow.ShowAndRun()
 }
 
-func listen() string {
-	l := hook.Start()
-	defer hook.End()
-
-	for val := range l {
-		if !isListening {
-			hook.End()
-			return ""
-		}
-		if val.Kind == hook.KeyDown {
-			if name, exists := config.SpecialKeys[val.Rawcode]; exists {
-				return name
-			}
-			return hook.RawcodetoKeychar(val.Rawcode)
-		}
-	}
-
-	return ""
-}
-
 func createPair(app fyne.App, label string, trackingKey *string, trackingLabel *widget.Label) fyne.CanvasObject {
-	lbl := canvas.NewText(label, color.White)
+	lbl := widget.NewLabel(label)
 
 	var btn *widget.Button
 	btn = widget.NewButton("Select", func() {
@@ -102,21 +124,23 @@ func createPair(app fyne.App, label string, trackingKey *string, trackingLabel *
 		selectWin.Show()
 
 		go func() {
-			isListening = true
-			selectWin.SetOnClosed(func() { isListening = false })
-			key := listen()
-			if key != "" {
-				*trackingKey = key
-				fyne.Do(func() {
-					trackingLabel.SetText("swordkey is " + *trackingKey)
-					btn.SetText(*trackingKey)
-				})
-			}
+			key := core.Listen()
+
+			*trackingKey = key
+			fyne.Do(func() {
+				trackingLabel.SetText("swordkey is " + *trackingKey)
+				btn.SetText(*trackingKey)
+			})
+
 			fyne.Do(func() {
 				selectWin.Close()
 			})
 		}()
 	})
 
-	return container.New(layout.NewHBoxLayout(), lbl, btn)
+	return container.New(layout.NewHBoxLayout(), lbl, layout.NewSpacer(), btn)
+}
+
+func selectOptions() []string {
+	return []string{"tab", "`", "capslock", "lshift", "lctrl", "lalt", "space", "backspace", "[", "]", "\\", "enter", "/", "rshift", "ralt", "printscreen", "rctrl"}
 }

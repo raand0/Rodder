@@ -1,13 +1,5 @@
 package config
 
-var Keys struct {
-	SwordKey    string
-	RodKey      string
-	MacroKey    string
-	ToggleKey   string
-	BackToSword bool
-}
-
 var SpecialKeys = map[uint16]string{
 	27:  "esc",
 	192: "`",
