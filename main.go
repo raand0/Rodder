@@ -4,15 +4,10 @@ import (
 	"MacroGo/gui"
 )
 
-//structure the codes
-// macro still works while switch is off
-// add some delay to macros
-// how to page is empty
-// app icon
-// add tooltips
-// remove unecessery code
-// test before building to executable
+// save config to appdata and read on startup and save on close
+// add app icon
+// test before building the executable
 
 func main() {
-	gui.InitializeMacro()
+	gui.InitMacro()
 }

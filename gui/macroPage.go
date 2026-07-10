@@ -15,57 +15,64 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-var MacroKey string
-var ToggleKey string
-
-func InitializeMacro() {
+func InitMacro() {
 	myApp := app.New()
 	myWindow := myApp.NewWindow("Rodder")
+	shared.App = myApp
 
-	//testing labels
-	t_s := widget.NewLabel("swordkey is " + core.SwordKey)
-	t_r := widget.NewLabel("rodkey is " + core.RodKey)
-	t_m := widget.NewLabel("macrokey is " + MacroKey)
-	t_t := widget.NewLabel("togglekey is " + ToggleKey)
-
-	//row padding
+	//row gap
 	rowGap := canvas.NewRectangle(color.Transparent)
 	rowGap.SetMinSize(fyne.NewSize(0, 15))
 
 	//first row
-	swordContainer := container.New(layout.NewHBoxLayout(), createPair(myApp, "Sword", &core.SwordKey, t_s))
-	rodContainer := container.New(layout.NewHBoxLayout(), createPair(myApp, "Rod", &core.RodKey, t_r))
+	swordContainer := container.New(layout.NewHBoxLayout(), createPair(myApp, "Sword", &config.SwordKey))
+	rodContainer := container.New(layout.NewHBoxLayout(), createPair(myApp, "Rod", &config.RodKey))
 	firstRow := container.New(layout.NewHBoxLayout(), swordContainer, layout.NewSpacer(), rodContainer)
 
-	//second row
-	macroSelect := widget.NewSelect(selectOptions(), func(option string) {
-		MacroKey = option
-		t_m.SetText("macrokey is " + MacroKey)
-		for key, value := range config.SpecialKeys {
-			if value == MacroKey {
-				core.MacroCode = key
-				break
-			}
-		}
-	})
-	toggleSelect := widget.NewSelect(selectOptions(), func(option string) {
-		ToggleKey = option
-		t_m.SetText("togglekey is " + ToggleKey)
-		for key, value := range config.SpecialKeys {
-			if value == ToggleKey {
-				core.ToggleCode = key
-				break
+	//macro keybind
+	var macroSelect *widget.Select
+	macroSelect = widget.NewSelect(selectOptions(), func(option string) {
+		err := shared.CheckBinds(option, 3)
+		if(err != nil){
+			macroSelect.ClearSelected()
+			config.MacroCode = 0
+		}else{
+			config.MacroKey = option
+			for key, value := range config.SpecialKeys {
+				if value == config.MacroKey {
+					config.MacroCode = key
+					break
+				}
 			}
 		}
 	})
 
+	//toggle keybing
+	var toggleSelect *widget.Select
+	toggleSelect = widget.NewSelect(selectOptions(), func(option string) {
+		err := shared.CheckBinds(option, 4)
+		if(err != nil){
+			toggleSelect.ClearSelected()
+			config.ToggleCode = 0
+		}else{
+			config.ToggleKey = option
+			for key, value := range config.SpecialKeys {
+				if value == config.ToggleKey {
+					config.ToggleCode = key
+					break
+				}
+			}
+		}
+	})
+
+	//second row
 	macroContainer := container.New(layout.NewHBoxLayout(), widget.NewLabel("Macro"), layout.NewSpacer(), macroSelect)
 	toggleContainer := container.New(layout.NewHBoxLayout(), widget.NewLabel("Toggle"), toggleSelect)
 	secondRow := container.New(layout.NewHBoxLayout(), macroContainer, layout.NewSpacer(), toggleContainer)
 
 	//checkbox
 	swordCheck := widget.NewCheck("Back to sword", func(checked bool) {
-		core.BackToSword = checked
+		config.BackToSword = checked
 	})
 	thirdRow := container.New(layout.NewCenterLayout(), swordCheck)
 
@@ -93,12 +100,11 @@ func InitializeMacro() {
 	footer := container.NewHBox(creator, layout.NewSpacer(), version)
 	footerWithButton := container.NewPadded(container.NewVBox(container.NewCenter(TglBtn), footer))
 
-	//other page
-	c := container.New(layout.NewHBoxLayout(), t_s, t_r, t_m, t_t)
-
+	//navigation
 	tabs := container.NewAppTabs(
 		container.NewTabItem("Macro", padded),
-		container.NewTabItem("How to use", c),
+		container.NewTabItem("How to use", initHow()),
+		container.NewTabItem("Contact", initContact()),
 	)
 
 	tabs.SetTabLocation(container.TabLocationLeading)
@@ -106,12 +112,14 @@ func InitializeMacro() {
 	final := container.New(layout.NewBorderLayout(header, footerWithButton, nil, nil), header, footerWithButton, tabs)
 
 	go core.Macro()
+	myWindow.CenterOnScreen()
 	myWindow.SetContent(final)
 	myWindow.Resize(fyne.NewSize(400, 400))
+	myWindow.SetFixedSize(true)
 	myWindow.ShowAndRun()
 }
 
-func createPair(app fyne.App, label string, trackingKey *string, trackingLabel *widget.Label) fyne.CanvasObject {
+func createPair(app fyne.App, label string, trackingKey *string) fyne.CanvasObject {
 	lbl := widget.NewLabel(label)
 
 	var btn *widget.Button
@@ -125,10 +133,20 @@ func createPair(app fyne.App, label string, trackingKey *string, trackingLabel *
 
 		go func() {
 			key := core.Listen()
+			if(label == "Sword"){
+				err := shared.CheckBinds(key, 1)
+				if(err != nil){
+					key = "None"
+				}
+			}else{
+				err := shared.CheckBinds(key, 2)
+				if(err != nil){
+					key = "None"
+				}
+			}
 
 			*trackingKey = key
 			fyne.Do(func() {
-				trackingLabel.SetText("swordkey is " + *trackingKey)
 				btn.SetText(*trackingKey)
 			})
 

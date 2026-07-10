@@ -1,5 +1,13 @@
 package config
 
+var SwordKey string
+var RodKey string
+var BackToSword bool
+var ToggleCode uint16
+var MacroCode uint16
+var MacroKey string
+var ToggleKey string
+
 var SpecialKeys = map[uint16]string{
 	27:  "esc",
 	192: "`",

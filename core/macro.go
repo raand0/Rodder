@@ -4,30 +4,26 @@ import (
 	"MacroGo/config"
 	"MacroGo/shared"
 	"fmt"
-	"sync"
+	"time"
 
 	"github.com/go-vgo/robotgo"
 	hook "github.com/robotn/gohook"
 )
 
-var mutex sync.Mutex
-
 var (
 	Listeing        bool
 	ListeningResult = make(chan string, 1)
+	press byte = 0
+	release byte = 1
+	virtualGo = make(chan byte)
 )
 
-var SwordKey string
-var RodKey string
-var BackToSword bool
-var ToggleCode uint16
-var MacroCode uint16
-
-var Channel = hook.Start()
-
 func Macro() {
+	Channel := hook.Start()
 	fmt.Println("Macro is running")
 	defer hook.End()
+
+	go routineOnlyVirtual()
 
 	macroHold := false
 	toggleHold := false
@@ -35,7 +31,6 @@ func Macro() {
 	for val := range Channel {
 
 		if val.Kind == hook.KeyDown {
-			fmt.Println("Value: ", val.Rawcode)
 			if Listeing {
 				var keyname string
 				if name, exists := config.SpecialKeys[val.Rawcode]; exists {
@@ -48,14 +43,19 @@ func Macro() {
 				continue
 			}
 
-			if val.Rawcode == MacroCode {
-				fmt.Println("Macro key pressed")
-				if !macroHold {
-					macroHold = true
-					go simulate()
+			if val.Rawcode == config.MacroCode {
+				if shared.Switch {
+					if !macroHold {
+						macroHold = true
+						select{
+							case virtualGo <- press:
+							default:
+						}
+					}
+				} else {
+					continue
 				}
-			} else if val.Rawcode == ToggleCode {
-				fmt.Println("Toggle key pressed")
+			} else if val.Rawcode == config.ToggleCode {
 				if !toggleHold {
 					toggleHold = true
 					shared.SwitchHandler()
@@ -64,33 +64,36 @@ func Macro() {
 		}
 
 		if val.Kind == hook.KeyUp {
-			if val.Rawcode == MacroCode {
-				if BackToSword {
-					go release()
+			if val.Rawcode == config.MacroCode {
+				if config.BackToSword {
+					select{
+						case virtualGo <- release:
+						default:
+					}
 				}
 				macroHold = false
 			}
 
-			if val.Rawcode == ToggleCode {
+			if val.Rawcode == config.ToggleCode {
 				toggleHold = false
 			}
 		}
 	}
 }
 
-func simulate() {
-	mutex.Lock()
-	defer mutex.Unlock()
+func pressed() {
 
-	robotgo.KeyTap(RodKey)
+	time.Sleep(1 * time.Millisecond)
+	robotgo.KeyTap(config.RodKey)
+	time.Sleep(1 * time.Millisecond)
 	robotgo.Click("right")
 }
 
-func release() {
-	mutex.Lock()
-	defer mutex.Unlock()
+func released() {
 
-	robotgo.KeyTap(SwordKey)
+	time.Sleep(1 * time.Millisecond)
+	robotgo.KeyTap(config.SwordKey)
+	time.Sleep(1 * time.Millisecond)
 }
 
 func Listen() string {
@@ -98,4 +101,13 @@ func Listen() string {
 	Listeing = true
 	keyname := <-ListeningResult
 	return keyname
+}
+
+func routineOnlyVirtual(){
+	for which := range virtualGo{
+		switch(which){
+			case press: pressed()
+			case release: released()
+		}
+	}
 }
