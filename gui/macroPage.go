@@ -4,6 +4,7 @@ import (
 	"MacroGo/config"
 	"MacroGo/core"
 	"MacroGo/shared"
+	"MacroGo/file"
 	"image/color"
 
 	"fyne.io/fyne/v2"
@@ -19,6 +20,8 @@ func InitMacro() {
 	myApp := app.New()
 	myWindow := myApp.NewWindow("Rodder")
 	shared.App = myApp
+
+	file.Read()
 
 	//row gap
 	rowGap := canvas.NewRectangle(color.Transparent)
@@ -46,6 +49,7 @@ func InitMacro() {
 			}
 		}
 	})
+	macroSelect.SetSelected(config.MacroKey)
 
 	//toggle keybing
 	var toggleSelect *widget.Select
@@ -64,6 +68,7 @@ func InitMacro() {
 			}
 		}
 	})
+	toggleSelect.SetSelected(config.ToggleKey)
 
 	//second row
 	macroContainer := container.New(layout.NewHBoxLayout(), widget.NewLabel("Macro"), layout.NewSpacer(), macroSelect)
@@ -74,6 +79,7 @@ func InitMacro() {
 	swordCheck := widget.NewCheck("Back to sword", func(checked bool) {
 		config.BackToSword = checked
 	})
+	swordCheck.SetChecked(config.BackToSword)
 	thirdRow := container.New(layout.NewCenterLayout(), swordCheck)
 
 	//pack everything
@@ -112,6 +118,7 @@ func InitMacro() {
 	final := container.New(layout.NewBorderLayout(header, footerWithButton, nil, nil), header, footerWithButton, tabs)
 
 	go core.Macro()
+	myWindow.SetOnClosed(func() {file.Write()})
 	myWindow.CenterOnScreen()
 	myWindow.SetContent(final)
 	myWindow.Resize(fyne.NewSize(400, 400))
@@ -122,8 +129,13 @@ func InitMacro() {
 func createPair(app fyne.App, label string, trackingKey *string) fyne.CanvasObject {
 	lbl := widget.NewLabel(label)
 
+	text := "Select"
+	if(trackingKey != nil && *trackingKey != ""){
+		text = *trackingKey
+	}
+
 	var btn *widget.Button
-	btn = widget.NewButton("Select", func() {
+	btn = widget.NewButton(text, func() {
 
 		selectWin := app.NewWindow("press a key")
 		container := container.New(layout.NewCenterLayout(), widget.NewLabel("PRESS A KEY"))
