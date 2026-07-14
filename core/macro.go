@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/gen2brain/beeep"
 	"github.com/go-vgo/robotgo"
 	hook "github.com/robotn/gohook"
 )
@@ -59,6 +60,7 @@ func Macro() {
 				if !toggleHold {
 					toggleHold = true
 					shared.SwitchHandler()
+					beeep.Beep(beeep.DefaultFreq, 250)
 				}
 			}
 		}
