@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"encoding/json"
-	"MacroGo/config"
+	"Rodder/config"
 )
 
 type Binds struct{

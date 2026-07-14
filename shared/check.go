@@ -1,7 +1,7 @@
 package shared
 
 import (
-	"MacroGo/config"
+	"Rodder/config"
 	"errors"
 
 	"fyne.io/fyne/v2"

@@ -1,10 +1,10 @@
 package gui
 
 import (
-	"MacroGo/config"
-	"MacroGo/core"
-	"MacroGo/shared"
-	"MacroGo/file"
+	"Rodder/config"
+	"Rodder/core"
+	"Rodder/shared"
+	"Rodder/file"
 	"image/color"
 
 	"fyne.io/fyne/v2"

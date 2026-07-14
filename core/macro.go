@@ -1,8 +1,8 @@
 package core
 
 import (
-	"MacroGo/config"
-	"MacroGo/shared"
+	"Rodder/config"
+	"Rodder/shared"
 	"fmt"
 	"time"
 
@@ -65,13 +65,15 @@ func Macro() {
 
 		if val.Kind == hook.KeyUp {
 			if val.Rawcode == config.MacroCode {
-				if config.BackToSword {
-					select{
-						case virtualGo <- release:
-						default:
+				if(shared.Switch){
+					if config.BackToSword {
+						select{
+							case virtualGo <- release:
+							default:
+						}
 					}
+					macroHold = false
 				}
-				macroHold = false
 			}
 
 			if val.Rawcode == config.ToggleCode {

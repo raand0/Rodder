@@ -1,7 +1,7 @@
 package main
 
 import (
-	"MacroGo/gui"
+	"Rodder/gui"
 )
 
 // add app icon

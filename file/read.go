@@ -5,7 +5,7 @@ import (
 	"os"
 	"fmt"
 	"errors"
-	"MacroGo/config"
+	"Rodder/config"
 )
 
 func Read(){
