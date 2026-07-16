@@ -1,6 +1,7 @@
 package gui
 
 import (
+	"Rodder/assets"
 	"Rodder/config"
 	"Rodder/core"
 	"Rodder/shared"
@@ -17,9 +18,14 @@ import (
 )
 
 func InitMacro() {
+
+	appIcon := fyne.NewStaticResource("icon.png", assets.IconBytes)
+
 	myApp := app.New()
 	myWindow := myApp.NewWindow("Rodder")
 	shared.App = myApp
+
+	myApp.SetIcon(appIcon)
 
 	file.Read()
 
